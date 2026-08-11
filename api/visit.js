@@ -4,6 +4,7 @@
  */
 
 module.exports = async (req, res) => {
+  // Aceita somente POST
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
 
@@ -15,8 +16,11 @@ module.exports = async (req, res) => {
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY;
 
+  // Verificar configuração
   if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.error("[VISITAS] Variáveis do Supabase não configuradas.");
+    console.error(
+      "[VISITAS] Variáveis do Supabase não configuradas."
+    );
 
     return res.status(500).json({
       error: "Supabase não configurado."
@@ -24,6 +28,7 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // Chamar função PostgreSQL
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/rpc/increment_visits`,
       {
@@ -47,6 +52,7 @@ module.exports = async (req, res) => {
       responseText
     );
 
+    // Verificar resposta
     if (!response.ok) {
       return res.status(500).json({
         error: "Erro ao atualizar contador.",
@@ -54,6 +60,7 @@ module.exports = async (req, res) => {
       });
     }
 
+    // Supabase retorna o bigint como número JSON
     let count;
 
     try {
@@ -75,6 +82,7 @@ module.exports = async (req, res) => {
       });
     }
 
+    // Retornar contador para o site
     return res.status(200).json({
       success: true,
       count: count
