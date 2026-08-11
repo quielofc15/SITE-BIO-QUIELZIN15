@@ -1,21 +1,17 @@
-// =========================================================
-// LOADING / PRELOADER
-// =========================================================
+/* =========================================================
+   LOADING
+========================================================= */
 
 const preloader = document.getElementById("preloader");
 const loaderStatus = document.getElementById("loaderStatus");
 const loaderPercent = document.getElementById("loaderPercent");
 const loaderConsole = document.getElementById("loaderConsole");
-const loaderProgressFill = document.getElementById("loaderProgressFill");
-
-
-// =========================================================
-// PARTÍCULAS
-// =========================================================
+const loaderProgressFill =
+  document.getElementById("loaderProgressFill");
 
 const canvas = document.getElementById("particle-canvas");
-const ctx = canvas ? canvas.getContext("2d") : null;
 
+let ctx = null;
 let particles = [];
 
 const colors = [
@@ -23,6 +19,11 @@ const colors = [
   "rgba(248,209,108,0.32)",
   "rgba(103,35,229,0.24)"
 ];
+
+
+/* =========================================================
+   CANVAS / PARTÍCULAS
+========================================================= */
 
 function resizeCanvas() {
   if (!canvas) return;
@@ -34,27 +35,27 @@ function resizeCanvas() {
 function createParticles() {
   if (!canvas) return;
 
-  const amount = Math.max(
-    18,
-    Math.floor(window.innerWidth / 80)
+  particles = Array.from(
+    {
+      length: Math.max(
+        18,
+        Math.floor(window.innerWidth / 80)
+      )
+    },
+    () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: 2 + Math.random() * 2.5,
+      speedX: (Math.random() - 0.5) * 0.3,
+      speedY: (Math.random() - 0.5) * 0.4,
+      alpha: 0.15 + Math.random() * 0.22,
+      color:
+        colors[
+          Math.floor(Math.random() * colors.length)
+        ],
+      pulse: Math.random() * Math.PI * 2
+    })
   );
-
-  particles = Array.from({ length: amount }, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-
-    radius: 2 + Math.random() * 2.5,
-
-    speedX: (Math.random() - 0.5) * 0.3,
-    speedY: (Math.random() - 0.5) * 0.4,
-
-    alpha: 0.15 + Math.random() * 0.22,
-
-    color:
-      colors[Math.floor(Math.random() * colors.length)],
-
-    pulse: Math.random() * Math.PI * 2
-  }));
 }
 
 function drawParticles() {
@@ -68,10 +69,8 @@ function drawParticles() {
   );
 
   particles.forEach((particle) => {
-
     particle.x += particle.speedX;
     particle.y += particle.speedY;
-
     particle.pulse += 0.03;
 
     const radius =
@@ -116,22 +115,24 @@ function drawParticles() {
 }
 
 
-// =========================================================
-// LOADING
-// =========================================================
+/* =========================================================
+   STATUS DO LOADING
+========================================================= */
 
 function updateLoading(percent, message) {
-
   if (loaderProgressFill) {
-    loaderProgressFill.style.width = `${percent}%`;
+    loaderProgressFill.style.width =
+      `${percent}%`;
   }
 
   if (loaderPercent) {
-    loaderPercent.textContent = `${percent}%`;
+    loaderPercent.textContent =
+      `${percent}%`;
   }
 
   if (loaderStatus) {
-    loaderStatus.textContent = message;
+    loaderStatus.textContent =
+      message;
   }
 
   if (loaderConsole) {
@@ -140,94 +141,238 @@ function updateLoading(percent, message) {
   }
 }
 
+
+/* =========================================================
+   FRAME
+========================================================= */
+
 function flushFrame() {
   return new Promise((resolve) => {
-    requestAnimationFrame(() => resolve());
+    requestAnimationFrame(() => {
+      resolve();
+    });
   });
 }
 
 
-// =========================================================
-// DOM
-// =========================================================
+/* =========================================================
+   DOM
+========================================================= */
 
 async function initializeDOM() {
+  console.log("[APP] Verificando DOM...");
 
   if (
-    document.readyState === "interactive" ||
-    document.readyState === "complete"
+    document.readyState ===
+    "complete"
   ) {
+    console.log(
+      "[APP] DOM já está completamente carregado."
+    );
+
     return;
   }
 
   await new Promise((resolve) => {
-
-    document.addEventListener(
-      "DOMContentLoaded",
+    window.addEventListener(
+      "load",
       resolve,
       { once: true }
     );
-
   });
+
+  console.log(
+    "[APP] Evento window.load recebido."
+  );
 }
 
 
-// =========================================================
-// INTERFACE
-// =========================================================
+/* =========================================================
+   INTERFACE
+========================================================= */
 
 async function initializeInterface() {
+  console.log(
+    "[APP] Inicializando interface..."
+  );
 
   await flushFrame();
 
+  console.log(
+    "[APP] Interface inicializada."
+  );
 }
 
 
-// =========================================================
-// PARTÍCULAS
-// =========================================================
+/* =========================================================
+   RECURSOS
+========================================================= */
+
+async function initializeResources() {
+  console.log(
+    "[APP] Verificando recursos..."
+  );
+
+  const loaders = [];
+
+  /* FONTES */
+
+  if (
+    document.fonts &&
+    document.fonts.ready
+  ) {
+    console.log(
+      "[APP] Aguardando fontes..."
+    );
+
+    loaders.push(
+      document.fonts.ready.catch(
+        (error) => {
+          console.warn(
+            "[APP] Erro nas fontes:",
+            error
+          );
+
+          return null;
+        }
+      )
+    );
+  }
+
+  /* IMAGENS */
+
+  const images =
+    Array.from(document.images);
+
+  console.log(
+    "[APP] Imagens encontradas:",
+    images.length
+  );
+
+  images.forEach((image, index) => {
+    if (image.complete) {
+      console.log(
+        `[APP] Imagem ${index + 1}: já carregada`
+      );
+
+      return;
+    }
+
+    console.log(
+      `[APP] Aguardando imagem ${index + 1}:`,
+      image.src
+    );
+
+    loaders.push(
+      new Promise((resolve) => {
+
+        image.addEventListener(
+          "load",
+          () => {
+            console.log(
+              `[APP] Imagem ${index + 1}: carregada`
+            );
+
+            resolve();
+          },
+          { once: true }
+        );
+
+        image.addEventListener(
+          "error",
+          () => {
+            console.warn(
+              `[APP] Imagem ${index + 1}: ERRO`,
+              image.src
+            );
+
+            resolve();
+          },
+          { once: true }
+        );
+      })
+    );
+  });
+
+  if (loaders.length > 0) {
+    await Promise.all(loaders);
+  }
+
+  console.log(
+    "[APP] Recursos finalizados."
+  );
+}
+
+
+/* =========================================================
+   PARTÍCULAS
+========================================================= */
 
 async function initializeParticles() {
+  console.log(
+    "[APP] Inicializando partículas..."
+  );
 
-  resizeCanvas();
+  if (canvas) {
+    ctx =
+      canvas.getContext("2d");
 
-  createParticles();
+    resizeCanvas();
+    createParticles();
+  }
 
   await flushFrame();
 
+  console.log(
+    "[APP] Partículas inicializadas."
+  );
 }
 
 
-// =========================================================
-// EVENTOS
-// =========================================================
+/* =========================================================
+   EVENTOS
+========================================================= */
 
 async function initializeEvents() {
+  console.log(
+    "[APP] Configurando eventos..."
+  );
 
   window.addEventListener(
     "resize",
     () => {
-
       resizeCanvas();
       createParticles();
-
     },
     { passive: true }
   );
 
   await flushFrame();
 
+  console.log(
+    "[APP] Eventos configurados."
+  );
 }
 
 
-// =========================================================
-// LINKS
-// =========================================================
+/* =========================================================
+   LINKS
+========================================================= */
 
 async function initializeLinks() {
+  console.log(
+    "[APP] Verificando links..."
+  );
 
   const buttons =
-    document.querySelectorAll(".link-button");
+    document.querySelectorAll(
+      ".link-button"
+    );
+
+  console.log(
+    "[APP] Botões encontrados:",
+    buttons.length
+  );
 
   buttons.forEach((button) => {
 
@@ -244,212 +389,29 @@ async function initializeLinks() {
         "noopener noreferrer"
       );
     }
-
   });
 
   await flushFrame();
 
+  console.log(
+    "[APP] Links configurados."
+  );
 }
 
 
-// =========================================================
-// RECURSOS
-// =========================================================
-
-async function initializeResources() {
-
-  const loaders = [];
-
-
-  // Fontes
-  if (
-    document.fonts &&
-    document.fonts.ready
-  ) {
-
-    loaders.push(
-      document.fonts.ready.catch(() => null)
-    );
-
-  }
-
-
-  // Imagens
-  const images =
-    Array.from(document.images);
-
-  images.forEach((image) => {
-
-    if (image.complete) {
-      return;
-    }
-
-    loaders.push(
-      new Promise((resolve) => {
-
-        image.addEventListener(
-          "load",
-          resolve,
-          { once: true }
-        );
-
-        image.addEventListener(
-          "error",
-          resolve,
-          { once: true }
-        );
-
-      })
-    );
-
-  });
-
-
-  if (loaders.length > 0) {
-    await Promise.all(loaders);
-  }
-
-}
-
-
-// =========================================================
-// CONTADOR GLOBAL DE VISITAS
-// =========================================================
-
-async function carregarContadorVisitas() {
-
-  const contador =
-    document.getElementById("visitCount");
-
-
-  if (!contador) {
-
-    console.warn(
-      "[VISITAS] #visitCount não encontrado."
-    );
-
-    return;
-
-  }
-
-
-  try {
-
-    contador.textContent =
-      "CARREGANDO...";
-
-
-    console.log(
-      "[VISITAS] Registrando visita..."
-    );
-
-
-    const response = await fetch(
-      "/api/visits",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-
-        cache: "no-store"
-      }
-    );
-
-
-    const responseText =
-      await response.text();
-
-
-    console.log(
-      "[VISITAS] API:",
-      response.status,
-      responseText
-    );
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        `API retornou HTTP ${response.status}`
-      );
-
-    }
-
-
-    let data;
-
-    try {
-
-      data =
-        JSON.parse(responseText);
-
-    } catch {
-
-      throw new Error(
-        "Resposta da API não é JSON válido."
-      );
-
-    }
-
-
-    if (
-      !data ||
-      data.success !== true ||
-      typeof data.count !== "number"
-    ) {
-
-      throw new Error(
-        "Resposta inválida da API."
-      );
-
-    }
-
-
-    const numero =
-      data.count.toLocaleString(
-        "pt-BR"
-      );
-
-
-    contador.textContent =
-      numero;
-
-
-    console.log(
-      `[VISITAS] Total: ${numero}`
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "[VISITAS] Erro ao registrar visita:",
-      error
-    );
-
-
-    // Não quebra o site se o contador falhar
-    contador.textContent = "—";
-
-  }
-
-}
-
-
-// =========================================================
-// FINALIZAR LOADING
-// =========================================================
+/* =========================================================
+   FINALIZAR LOADING
+========================================================= */
 
 function finishLoading() {
+  console.log(
+    "[APP] Finalizando loading..."
+  );
 
   updateLoading(
     100,
     "✓ SISTEMA PRONTO"
   );
-
 
   document.body.classList.remove(
     "loading"
@@ -459,16 +421,17 @@ function finishLoading() {
     "loaded"
   );
 
-
   if (!preloader) {
+    console.log(
+      "[APP] Preloader não encontrado."
+    );
+
     return;
   }
-
 
   preloader.classList.add(
     "loading-complete"
   );
-
 
   preloader.addEventListener(
     "transitionend",
@@ -476,24 +439,34 @@ function finishLoading() {
 
       if (preloader.parentNode) {
         preloader.remove();
+
+        console.log(
+          "[APP] Loading removido."
+        );
       }
 
     },
     { once: true }
   );
-
 }
 
 
-// =========================================================
-// INICIALIZAÇÃO PRINCIPAL
-// =========================================================
+/* =========================================================
+   INICIALIZAÇÃO PRINCIPAL
+========================================================= */
 
 async function initializeApp() {
 
+  console.log(
+    "========================================"
+  );
+
+  console.log(
+    "[APP] initializeApp() iniciado"
+  );
+
   try {
 
-    // 0%
     updateLoading(
       0,
       "[1/6] Inicializando sistema..."
@@ -502,7 +475,6 @@ async function initializeApp() {
     await initializeDOM();
 
 
-    // 20%
     updateLoading(
       20,
       "[2/6] Carregando interface..."
@@ -511,7 +483,6 @@ async function initializeApp() {
     await initializeInterface();
 
 
-    // 40%
     updateLoading(
       40,
       "[3/6] Inicializando partículas..."
@@ -520,7 +491,6 @@ async function initializeApp() {
     await initializeParticles();
 
 
-    // 60%
     updateLoading(
       60,
       "[4/6] Configurando eventos..."
@@ -529,84 +499,298 @@ async function initializeApp() {
     await initializeEvents();
 
 
-    // 70%
     updateLoading(
-      70,
+      80,
       "[5/6] Configurando links..."
     );
 
     await initializeLinks();
 
 
-    // 85%
     updateLoading(
-      85,
+      90,
       "[6/6] Carregando recursos..."
     );
 
     await initializeResources();
 
 
-    // =====================================================
-    // REGISTRAR VISITA
-    // =====================================================
-
-    updateLoading(
-      95,
-      "Registrando visita..."
-    );
-
-    // Não deixa o contador impedir o site de carregar
-    await carregarContadorVisitas();
-
-
-    // =====================================================
-    // FINAL
-    // =====================================================
-
     await flushFrame();
 
     finishLoading();
 
+    console.log(
+      "[APP] ✅ Inicialização concluída."
+    );
+
+    console.log(
+      "========================================"
+    );
 
   } catch (error) {
 
     console.error(
-      "[APP] Erro durante inicialização:",
-      error
+      "[APP] ❌ ERRO NA INICIALIZAÇÃO:"
     );
 
+    console.error(error);
 
     if (loaderConsole) {
-
       loaderConsole.textContent =
         "⚠ ALGUNS RECURSOS NÃO FORAM CARREGADOS";
-
     }
 
-
-    // Mesmo com erro, libera o site
     finishLoading();
-
   }
-
 }
 
 
-// =========================================================
-// INICIAR PARTÍCULAS IMEDIATAMENTE
-// =========================================================
+/* =========================================================
+   CONTADOR GLOBAL DE VISITAS
+========================================================= */
 
-resizeCanvas();
-createParticles();
+async function carregarContadorVisitas() {
 
-requestAnimationFrame(
-  drawParticles
-);
+  console.log(
+    "========================================"
+  );
+
+  console.log(
+    "[VISITAS] Iniciando contador..."
+  );
+
+  const contador =
+    document.getElementById(
+      "visitCount"
+    );
+
+  if (!contador) {
+
+    console.error(
+      "[VISITAS] ❌ #visitCount não encontrado."
+    );
+
+    return;
+  }
+
+  contador.textContent =
+    "CARREGANDO...";
 
 
-// =========================================================
-// INICIAR APP
-// =========================================================
+  try {
 
-initializeApp();
+    console.log(
+      "[VISITAS] Enviando POST para /api/visits..."
+    );
+
+    const inicio =
+      performance.now();
+
+
+    const response =
+      await fetch(
+        "/api/visits",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          cache: "no-store"
+        }
+      );
+
+
+    const tempo =
+      Math.round(
+        performance.now() -
+        inicio
+      );
+
+
+    console.log(
+      "[VISITAS] Resposta recebida em:",
+      `${tempo}ms`
+    );
+
+    console.log(
+      "[VISITAS] HTTP:",
+      response.status,
+      response.statusText
+    );
+
+
+    const texto =
+      await response.text();
+
+
+    console.log(
+      "[VISITAS] Resposta da API:",
+      texto
+    );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        `API retornou HTTP ${response.status}: ${texto}`
+      );
+    }
+
+
+    let data;
+
+    try {
+
+      data =
+        JSON.parse(texto);
+
+    } catch (error) {
+
+      console.error(
+        "[VISITAS] ❌ API não retornou JSON válido."
+      );
+
+      throw new Error(
+        "Resposta da API não é JSON."
+      );
+    }
+
+
+    console.log(
+      "[VISITAS] Dados recebidos:",
+      data
+    );
+
+
+    if (
+      !data ||
+      data.success !== true
+    ) {
+
+      throw new Error(
+        "API informou que a operação não teve sucesso."
+      );
+    }
+
+
+    const numero =
+      Number(data.count);
+
+
+    if (
+      !Number.isFinite(numero)
+    ) {
+
+      throw new Error(
+        "O contador recebido não é um número válido."
+      );
+    }
+
+
+    const formatado =
+      numero.toLocaleString(
+        "pt-BR"
+      );
+
+
+    contador.textContent =
+      formatado;
+
+
+    console.log(
+      "[VISITAS] ✅ VISITA REGISTRADA!"
+    );
+
+    console.log(
+      "[VISITAS] TOTAL:",
+      formatado
+    );
+
+    console.log(
+      "========================================"
+    );
+
+  } catch (error) {
+
+    console.error(
+      "========================================"
+    );
+
+    console.error(
+      "[VISITAS] ❌ ERRO!"
+    );
+
+    console.error(
+      "[VISITAS] Nome:",
+      error?.name
+    );
+
+    console.error(
+      "[VISITAS] Mensagem:",
+      error?.message
+    );
+
+    console.error(
+      "[VISITAS] Erro completo:",
+      error
+    );
+
+    console.error(
+      "========================================"
+    );
+
+    contador.textContent =
+      "—";
+  }
+}
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
+
+function iniciarAplicacao() {
+
+  console.log(
+    "[APP] Página iniciando..."
+  );
+
+  if (canvas) {
+    ctx =
+      canvas.getContext("2d");
+
+    resizeCanvas();
+    createParticles();
+    requestAnimationFrame(
+      drawParticles
+    );
+  }
+
+  initializeApp();
+
+  carregarContadorVisitas();
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+if (
+  document.readyState ===
+  "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    iniciarAplicacao,
+    { once: true }
+  );
+
+} else {
+
+  iniciarAplicacao();
+}
