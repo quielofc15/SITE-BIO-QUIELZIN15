@@ -793,4 +793,146 @@ if (
 } else {
 
   iniciarAplicacao();
+}// =========================================================
+// CONTADOR GLOBAL DE VISITAS
+// =========================================================
+
+async function carregarContadorVisitas() {
+  const contador = document.getElementById("visitCount");
+
+  if (!contador) {
+    console.warn(
+      "[VISITAS] Elemento #visitCount não encontrado."
+    );
+
+    return;
+  }
+
+  console.log("========================================");
+  console.log("[VISITAS] Iniciando contador...");
+
+  contador.textContent = "CARREGANDO...";
+
+  try {
+    console.log("[VISITAS] Enviando POST para /api/visits...");
+
+    const inicio = performance.now();
+
+    const response = await fetch("/api/visits", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      cache: "no-store"
+    });
+
+    const tempo = Math.round(
+      performance.now() - inicio
+    );
+
+    console.log(
+      "[VISITAS] Resposta recebida em:",
+      tempo + "ms"
+    );
+
+    console.log(
+      "[VISITAS] HTTP:",
+      response.status
+    );
+
+    const texto = await response.text();
+
+    console.log(
+      "[VISITAS] Resposta:",
+      texto
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `API retornou HTTP ${response.status}: ${texto}`
+      );
+    }
+
+    let data;
+
+    try {
+      data = JSON.parse(texto);
+    } catch {
+      throw new Error(
+        "A API não retornou JSON válido."
+      );
+    }
+
+    console.log(
+      "[VISITAS] Dados recebidos:",
+      data
+    );
+
+    if (
+      !data ||
+      data.success !== true ||
+      typeof data.count !== "number"
+    ) {
+      throw new Error(
+        "Resposta inválida da API."
+      );
+    }
+
+    const numero = data.count.toLocaleString(
+      "pt-BR"
+    );
+
+    contador.textContent = numero;
+
+    console.log(
+      "[VISITAS] ✅ Contador atualizado:",
+      numero
+    );
+
+    console.log("========================================");
+
+  } catch (error) {
+
+    console.error(
+      "[VISITAS] ❌ ERRO!"
+    );
+
+    console.error(
+      "[VISITAS] Nome:",
+      error?.name
+    );
+
+    console.error(
+      "[VISITAS] Mensagem:",
+      error?.message
+    );
+
+    console.error(
+      "[VISITAS] Erro completo:",
+      error
+    );
+
+    contador.textContent = "—";
+
+    console.log("========================================");
+  }
+}
+
+
+// =========================================================
+// INICIAR CONTADOR
+// =========================================================
+
+if (document.readyState === "loading") {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    carregarContadorVisitas,
+    { once: true }
+  );
+
+} else {
+
+  carregarContadorVisitas();
+
 }

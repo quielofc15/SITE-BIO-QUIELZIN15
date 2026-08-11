@@ -1,29 +1,31 @@
 /**
  * =========================================================
  * CONTADOR GLOBAL DE VISITAS
- * Vercel + Supabase
+ * VERCEL + SUPABASE
  * =========================================================
  *
  * Rota:
  * POST /api/visits
  *
- * Variáveis necessárias na Vercel:
+ * Variáveis:
  * SUPABASE_URL
  * SUPABASE_SECRET_KEY
+ * =========================================================
  */
 
-module.exports = async function handler(req, res) {
+module.exports = async (req, res) => {
   console.log("========================================");
-  console.log("[VISITAS] Nova requisição recebida");
+  console.log("[VISITAS] API INICIADA");
   console.log("[VISITAS] Método:", req.method);
-  console.log("[VISITAS] Horário:", new Date().toISOString());
+  console.log("[VISITAS] URL:", req.url);
+  console.log("[VISITAS] Data:", new Date().toISOString());
 
   // -------------------------------------------------------
   // SOMENTE POST
   // -------------------------------------------------------
 
   if (req.method !== "POST") {
-    console.warn("[VISITAS] Método não permitido:", req.method);
+    console.log("[VISITAS] ❌ Método não permitido");
 
     res.setHeader("Allow", "POST");
 
@@ -34,7 +36,7 @@ module.exports = async function handler(req, res) {
   }
 
   // -------------------------------------------------------
-  // VARIÁVEIS DE AMBIENTE
+  // VARIÁVEIS
   // -------------------------------------------------------
 
   const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -42,58 +44,49 @@ module.exports = async function handler(req, res) {
 
   console.log(
     "[VISITAS] SUPABASE_URL:",
-    SUPABASE_URL ? "CONFIGURADA" : "NÃO CONFIGURADA"
+    SUPABASE_URL ? "OK" : "AUSENTE"
   );
 
   console.log(
     "[VISITAS] SUPABASE_SECRET_KEY:",
-    SUPABASE_KEY ? "CONFIGURADA" : "NÃO CONFIGURADA"
+    SUPABASE_KEY ? "OK" : "AUSENTE"
   );
 
-  // Nunca mostrar a chave no console.
-  // Isso é importante para segurança.
-
   if (!SUPABASE_URL) {
-    console.error("[VISITAS] ERRO: SUPABASE_URL não existe.");
+    console.error("[VISITAS] ❌ SUPABASE_URL AUSENTE");
 
     return res.status(500).json({
       success: false,
-      error: "SUPABASE_URL não configurada."
+      error: "SUPABASE_URL não configurada"
     });
   }
 
   if (!SUPABASE_KEY) {
-    console.error(
-      "[VISITAS] ERRO: SUPABASE_SECRET_KEY não existe."
-    );
+    console.error("[VISITAS] ❌ SUPABASE_SECRET_KEY AUSENTE");
 
     return res.status(500).json({
       success: false,
-      error: "SUPABASE_SECRET_KEY não configurada."
+      error: "SUPABASE_SECRET_KEY não configurada"
     });
   }
 
   // -------------------------------------------------------
-  // VERIFICA URL
+  // URL DO SUPABASE
   // -------------------------------------------------------
 
-  const supabaseUrl = SUPABASE_URL.replace(/\/+$/, "");
-
-  console.log("[VISITAS] URL Supabase:", supabaseUrl);
+  const baseUrl = SUPABASE_URL.replace(/\/+$/, "");
 
   const rpcUrl =
-    `${supabaseUrl}/rest/v1/rpc/increment_visits`;
+    `${baseUrl}/rest/v1/rpc/increment_visits`;
 
   console.log("[VISITAS] RPC:", rpcUrl);
 
   // -------------------------------------------------------
-  // CHAMADA SUPABASE
+  // CHAMAR SUPABASE
   // -------------------------------------------------------
 
   try {
-    console.log(
-      "[VISITAS] Chamando increment_visits..."
-    );
+    console.log("[VISITAS] Chamando Supabase...");
 
     const response = await fetch(rpcUrl, {
       method: "POST",
@@ -107,16 +100,15 @@ module.exports = async function handler(req, res) {
       body: "{}"
     });
 
-    console.log(
-      "[VISITAS] Status Supabase:",
-      response.status,
-      response.statusText
-    );
-
     const responseText = await response.text();
 
     console.log(
-      "[VISITAS] Resposta bruta:",
+      "[VISITAS] HTTP Supabase:",
+      response.status
+    );
+
+    console.log(
+      "[VISITAS] Resposta Supabase:",
       responseText
     );
 
@@ -126,64 +118,45 @@ module.exports = async function handler(req, res) {
 
     if (!response.ok) {
       console.error(
-        "[VISITAS] ❌ SUPABASE RECUSOU A REQUISIÇÃO"
-      );
-
-      console.error(
-        "[VISITAS] HTTP:",
-        response.status
-      );
-
-      console.error(
-        "[VISITAS] Detalhes:",
-        responseText
+        "[VISITAS] ❌ SUPABASE RETORNOU ERRO"
       );
 
       return res.status(500).json({
         success: false,
-        error: "Supabase recusou a atualização.",
-        status: response.status
+        error: "Erro no Supabase",
+        status: response.status,
+        details: responseText
       });
     }
 
     // -----------------------------------------------------
-    // CONVERTER RESPOSTA
+    // CONVERTER RESULTADO
     // -----------------------------------------------------
 
     let count;
 
     try {
       count = JSON.parse(responseText);
-    } catch (error) {
-      console.warn(
-        "[VISITAS] Resposta não é JSON puro."
-      );
-
+    } catch {
       count = responseText;
     }
 
+    count = Number(count);
+
     console.log(
-      "[VISITAS] Valor recebido:",
+      "[VISITAS] Contador recebido:",
       count
     );
-
-    // Algumas respostas podem vir como número
-    // e outras como string.
-    count = Number(count);
 
     if (!Number.isFinite(count)) {
       console.error(
         "[VISITAS] ❌ CONTADOR INVÁLIDO"
       );
 
-      console.error(
-        "[VISITAS] Resposta recebida:",
-        responseText
-      );
-
       return res.status(500).json({
         success: false,
-        error: "Resposta inválida do contador."
+        error: "Contador inválido",
+        response: responseText
       });
     }
 
@@ -208,8 +181,9 @@ module.exports = async function handler(req, res) {
     });
 
   } catch (error) {
+
     console.error(
-      "[VISITAS] ❌ ERRO NA REQUISIÇÃO"
+      "[VISITAS] ❌ ERRO INTERNO"
     );
 
     console.error(
@@ -231,7 +205,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(500).json({
       success: false,
-      error: "Erro interno ao processar contador."
+      error: "Erro interno ao processar contador"
     });
   }
 };
