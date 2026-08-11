@@ -555,3 +555,45 @@ body.loading .page-shell {
     gap: 12px;
   }
 }
+/* =========================================================
+   BOTÕES - TUDO CENTRALIZADO
+   ========================================================= */
+
+.link-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+}
+
+/* Remove posicionamento lateral do emoji */
+.link-button .button-icon {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Botões das imagens */
+.code-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.code-links .link-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.code-links .button-icon { 
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

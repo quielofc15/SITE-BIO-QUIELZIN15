@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
 
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  />
+  >
 
   <title>Link na Bio | QUIELZIN15</title>
 
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body class="loading">
@@ -41,12 +42,16 @@
       </div>
 
       <div class="loader-progress">
+
         <div class="progress-track">
+
           <div
             id="loaderProgressFill"
             class="progress-fill"
           ></div>
+
         </div>
+
       </div>
 
       <div id="loaderPercent">
@@ -58,11 +63,12 @@
       </div>
 
     </div>
+
   </div>
 
 
   <!-- =====================================================
-       SITE PRINCIPAL
+       SITE
        ===================================================== -->
 
   <div class="page-shell">
@@ -83,11 +89,17 @@
         </div>
 
         <div class="hero-subtitle">
+
           DESENVOLVIDO POR
-          <span>@QUIELZIN15</span>
+
+          <span>
+            @QUIELZIN15
+          </span>
+
         </div>
 
         <div class="hero-meta">
+
           INSTA:
 
           <a
@@ -97,6 +109,7 @@
           >
             QUIELZIN15
           </a>
+
         </div>
 
       </section>
@@ -131,7 +144,7 @@
 
 
       <!-- =================================================
-           BOTÕES
+           LINKS PRINCIPAIS
            ================================================= -->
 
       <section class="links-grid">
@@ -157,7 +170,7 @@
         </a>
 
 
-        <!-- INSTAGRAM QUIELZIN15 -->
+        <!-- INSTAGRAM QUIEL -->
 
         <a
           class="link-button glass-button"
@@ -242,7 +255,52 @@
               src="assets/capa-2x2.png"
               alt="2 X 2 SÓ CAPA"
               loading="lazy"
-            />
+            >
+
+          </div>
+
+
+          <!-- BOTÕES DA IMAGEM -->
+
+          <div class="code-links">
+
+            <!-- COPIAR CÓDIGO -->
+
+            <button
+              class="link-button glass-button"
+              type="button"
+              onclick="copiarCodigo('#B24Z80', this)"
+            >
+
+              <span class="button-icon">
+                📋
+              </span>
+
+              <span>
+                COPIAR CÓDIGO
+              </span>
+
+            </button>
+
+
+            <!-- INFORMAÇÕES -->
+
+            <a
+              class="link-button glass-button"
+              href="https://c.freefiremobile.com/?m=126A1B24Z80"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+
+              <span class="button-icon">
+                ℹ️
+              </span>
+
+              <span>
+                INFORMAÇÕES
+              </span>
+
+            </a>
 
           </div>
 
@@ -250,27 +308,71 @@
 
 
         <!-- =================================================
-             4 VS 4 BERMUDA
+             4 X 4 BERMUDA
              ================================================= -->
 
         <div class="image-card">
 
           <h3 class="image-title">
-            4 VS 4 BERMUDA
+            4 X 4 BERMUDA
           </h3>
 
           <div class="image-wrap">
 
             <img
               src="assets/bermuda-4x4.png"
-              alt="4 VS 4 BERMUDA"
+              alt="4 X 4 BERMUDA"
               loading="lazy"
-            />
+            >
+
+          </div>
+
+
+          <!-- BOTÕES DA IMAGEM -->
+
+          <div class="code-links">
+
+            <!-- COPIAR CÓDIGO -->
+
+            <button
+              class="link-button glass-button"
+              type="button"
+              onclick="copiarCodigo('#2D03Z0', this)"
+            >
+
+              <span class="button-icon">
+                📋
+              </span>
+
+              <span>
+                COPIAR CÓDIGO
+              </span>
+
+            </button>
+
+
+            <!-- INFORMAÇÕES -->
+
+            <a
+              class="link-button glass-button"
+              href="https://c.freefiremobile.com/?m=126A12D03Z0"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+
+              <span class="button-icon">
+                ℹ️
+              </span>
+
+              <span>
+                INFORMAÇÕES
+              </span>
+
+            </a>
 
           </div>
 
         </div>
-
 
       </section>
 
@@ -289,14 +391,133 @@
 
 
     </main>
+
   </div>
 
 
   <!-- =====================================================
-       JAVASCRIPT
+       JAVASCRIPT PRINCIPAL
        ===================================================== -->
 
   <script src="js/app.js"></script>
 
+
+  <!-- =====================================================
+       COPIAR CÓDIGO
+       ===================================================== -->
+
+  <script>
+
+    async function copiarCodigo(codigo, botao) {
+
+      const textoOriginal = botao.innerHTML;
+
+      try {
+
+        /*
+         * Método principal
+         */
+
+        if (
+          navigator.clipboard &&
+          window.isSecureContext
+        ) {
+
+          await navigator.clipboard.writeText(codigo);
+
+        } else {
+
+          /*
+           * Fallback
+           */
+
+          const textarea =
+            document.createElement("textarea");
+
+          textarea.value = codigo;
+
+          textarea.style.position = "fixed";
+          textarea.style.left = "-9999px";
+          textarea.style.top = "0";
+
+          document.body.appendChild(textarea);
+
+          textarea.focus();
+          textarea.select();
+
+          document.execCommand("copy");
+
+          textarea.remove();
+
+        }
+
+
+        /*
+         * Sucesso
+         */
+
+        botao.innerHTML = `
+          <span class="button-icon">✅</span>
+          <span>CÓDIGO COPIADO!</span>
+        `;
+
+        console.log(
+          "[CÓDIGO] Copiado:",
+          codigo
+        );
+
+
+        /*
+         * Volta ao texto original
+         */
+
+        setTimeout(() => {
+
+          botao.innerHTML =
+            textoOriginal;
+
+        }, 1800);
+
+
+      } catch (error) {
+
+        console.error(
+          "[CÓDIGO] Erro ao copiar:",
+          error
+        );
+
+        alert(
+          "Código: " + codigo
+        );
+
+      }
+
+    }
+
+  </script>
+
+
+  <!-- =====================================================
+       ESPAÇAMENTO DOS BOTÕES DAS IMAGENS
+       ===================================================== -->
+
+  <style>
+
+    .code-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .code-links .link-button {
+      width: 100%;
+      margin: 0;
+    }
+
+  </style>
+
 </body>
+
 </html>
