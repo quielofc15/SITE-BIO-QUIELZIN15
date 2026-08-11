@@ -179,3 +179,83 @@ resizeCanvas();
 createParticles();
 requestAnimationFrame(drawParticles);
 initializeApp();
+/* =========================================================
+   CONTADOR GLOBAL DE VISITAS
+   ========================================================= */
+
+async function carregarContadorVisitas() {
+  const contador = document.getElementById("visitCount");
+
+  if (!contador) {
+    console.warn(
+      "[VISITAS] Elemento #visitCount não encontrado."
+    );
+
+    return;
+  }
+
+  try {
+    contador.textContent = "CARREGANDO...";
+
+    const response = await fetch("/api/visits", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `HTTP ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+
+    if (
+      !data ||
+      typeof data.count !== "number"
+    ) {
+      throw new Error(
+        "Resposta inválida da API."
+      );
+    }
+
+    const numero = data.count.toLocaleString(
+      "pt-BR"
+    );
+
+    contador.textContent = numero;
+
+    console.log(
+      `[VISITAS] Total: ${numero}`
+    );
+
+  } catch (error) {
+    console.error(
+      "[VISITAS] Erro:",
+      error
+    );
+
+    contador.textContent = "—";
+  }
+}
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+   ========================================================= */
+
+if (document.readyState === "loading") {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    carregarContadorVisitas
+  );
+
+} else {
+
+  carregarContadorVisitas();
+
+}
