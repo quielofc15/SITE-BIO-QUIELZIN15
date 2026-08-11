@@ -4,9 +4,9 @@
  */
 
 module.exports = async (req, res) => {
-  // Aceita somente POST
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
+
     return res.status(405).json({
       error: "Method not allowed"
     });
@@ -15,9 +15,8 @@ module.exports = async (req, res) => {
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY;
 
-  // Verifica configuração
   if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.error("Variáveis do Supabase não configuradas.");
+    console.error("[VISITAS] Variáveis do Supabase não configuradas.");
 
     return res.status(500).json({
       error: "Supabase não configurado."
@@ -25,52 +24,67 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Chama a função PostgreSQL
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/rpc/increment_visits`,
       {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
           "apikey": SUPABASE_KEY,
           "Authorization": `Bearer ${SUPABASE_KEY}`
         },
-        body: JSON.stringify({})
+
+        body: "{}"
       }
     );
 
     const responseText = await response.text();
 
-    if (!response.ok) {
-      console.error(
-        "Erro Supabase:",
-        response.status,
-        responseText
-      );
+    console.log(
+      "[VISITAS] Supabase:",
+      response.status,
+      responseText
+    );
 
+    if (!response.ok) {
       return res.status(500).json({
-        error: "Erro ao atualizar contador."
+        error: "Erro ao atualizar contador.",
+        details: responseText
       });
     }
 
-    const count = Number(responseText);
+    let count;
+
+    try {
+      count = JSON.parse(responseText);
+    } catch {
+      count = responseText;
+    }
+
+    count = Number(count);
 
     if (!Number.isFinite(count)) {
-      console.error("Resposta inválida do Supabase:", responseText);
+      console.error(
+        "[VISITAS] Contador inválido:",
+        responseText
+      );
 
       return res.status(500).json({
         error: "Resposta inválida do contador."
       });
     }
 
-    // Retorna o total para o navegador
     return res.status(200).json({
       success: true,
-      count
+      count: count
     });
 
   } catch (error) {
-    console.error("Erro na API de visitas:", error);
+    console.error(
+      "[VISITAS] Erro interno:",
+      error
+    );
 
     return res.status(500).json({
       error: "Erro interno ao processar contador."
