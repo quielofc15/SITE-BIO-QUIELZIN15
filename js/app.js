@@ -1,6 +1,12 @@
 /* =========================================================
-   LOADING
-========================================================= */
+   APP QUIELZIN15
+   LOADING + PARTÍCULAS + CONTADOR DE VISITAS
+   ========================================================= */
+
+
+/* =========================================================
+   ELEMENTOS DO LOADING
+   ========================================================= */
 
 const preloader = document.getElementById("preloader");
 const loaderStatus = document.getElementById("loaderStatus");
@@ -22,8 +28,8 @@ const colors = [
 
 
 /* =========================================================
-   CANVAS / PARTÍCULAS
-========================================================= */
+   CANVAS
+   ========================================================= */
 
 function resizeCanvas() {
   if (!canvas) return;
@@ -32,31 +38,55 @@ function resizeCanvas() {
   canvas.height = window.innerHeight;
 }
 
+
+/* =========================================================
+   PARTÍCULAS
+   ========================================================= */
+
 function createParticles() {
   if (!canvas) return;
 
+  const quantidade = Math.max(
+    18,
+    Math.floor(window.innerWidth / 80)
+  );
+
   particles = Array.from(
-    {
-      length: Math.max(
-        18,
-        Math.floor(window.innerWidth / 80)
-      )
-    },
+    { length: quantidade },
     () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
+
       radius: 2 + Math.random() * 2.5,
-      speedX: (Math.random() - 0.5) * 0.3,
-      speedY: (Math.random() - 0.5) * 0.4,
-      alpha: 0.15 + Math.random() * 0.22,
+
+      speedX:
+        (Math.random() - 0.5) * 0.3,
+
+      speedY:
+        (Math.random() - 0.5) * 0.4,
+
+      alpha:
+        0.15 + Math.random() * 0.22,
+
       color:
         colors[
-          Math.floor(Math.random() * colors.length)
+          Math.floor(
+            Math.random() * colors.length
+          )
         ],
-      pulse: Math.random() * Math.PI * 2
+
+      pulse:
+        Math.random() *
+        Math.PI *
+        2
     })
   );
 }
+
+
+/* =========================================================
+   DESENHAR PARTÍCULAS
+   ========================================================= */
 
 function drawParticles() {
   if (!canvas || !ctx) return;
@@ -69,39 +99,63 @@ function drawParticles() {
   );
 
   particles.forEach((particle) => {
+
     particle.x += particle.speedX;
     particle.y += particle.speedY;
+
     particle.pulse += 0.03;
 
     const radius =
       particle.radius +
-      Math.sin(particle.pulse) * 0.7;
+      Math.sin(
+        particle.pulse
+      ) * 0.7;
+
+
+    /* TELEPORTE NAS BORDAS */
 
     if (particle.x < -20) {
-      particle.x = canvas.width + 20;
+      particle.x =
+        canvas.width + 20;
     }
 
-    if (particle.x > canvas.width + 20) {
+    if (
+      particle.x >
+      canvas.width + 20
+    ) {
       particle.x = -20;
     }
 
     if (particle.y < -20) {
-      particle.y = canvas.height + 20;
+      particle.y =
+        canvas.height + 20;
     }
 
-    if (particle.y > canvas.height + 20) {
+    if (
+      particle.y >
+      canvas.height + 20
+    ) {
       particle.y = -20;
     }
 
+
+    /* DESENHAR */
+
     ctx.beginPath();
 
-    ctx.fillStyle = particle.color;
-    ctx.globalAlpha = particle.alpha;
+    ctx.fillStyle =
+      particle.color;
+
+    ctx.globalAlpha =
+      particle.alpha;
 
     ctx.arc(
       particle.x,
       particle.y,
-      Math.max(0.8, radius),
+      Math.max(
+        0.8,
+        radius
+      ),
       0,
       Math.PI * 2
     );
@@ -111,15 +165,21 @@ function drawParticles() {
 
   ctx.globalAlpha = 1;
 
-  requestAnimationFrame(drawParticles);
+  requestAnimationFrame(
+    drawParticles
+  );
 }
 
 
 /* =========================================================
-   STATUS DO LOADING
-========================================================= */
+   ATUALIZAR LOADING
+   ========================================================= */
 
-function updateLoading(percent, message) {
+function updateLoading(
+  percent,
+  message
+) {
+
   if (loaderProgressFill) {
     loaderProgressFill.style.width =
       `${percent}%`;
@@ -143,29 +203,38 @@ function updateLoading(percent, message) {
 
 
 /* =========================================================
-   FRAME
-========================================================= */
+   AGUARDAR FRAME
+   ========================================================= */
 
 function flushFrame() {
-  return new Promise((resolve) => {
-    requestAnimationFrame(() => {
-      resolve();
-    });
-  });
+
+  return new Promise(
+    (resolve) => {
+
+      requestAnimationFrame(
+        () => resolve()
+      );
+
+    }
+  );
 }
 
 
 /* =========================================================
    DOM
-========================================================= */
+   ========================================================= */
 
 async function initializeDOM() {
-  console.log("[APP] Verificando DOM...");
+
+  console.log(
+    "[APP] Verificando DOM..."
+  );
 
   if (
     document.readyState ===
     "complete"
   ) {
+
     console.log(
       "[APP] DOM já está completamente carregado."
     );
@@ -173,13 +242,19 @@ async function initializeDOM() {
     return;
   }
 
-  await new Promise((resolve) => {
-    window.addEventListener(
-      "load",
-      resolve,
-      { once: true }
-    );
-  });
+  await new Promise(
+    (resolve) => {
+
+      window.addEventListener(
+        "load",
+        resolve,
+        {
+          once: true
+        }
+      );
+
+    }
+  );
 
   console.log(
     "[APP] Evento window.load recebido."
@@ -189,9 +264,10 @@ async function initializeDOM() {
 
 /* =========================================================
    INTERFACE
-========================================================= */
+   ========================================================= */
 
 async function initializeInterface() {
+
   console.log(
     "[APP] Inicializando interface..."
   );
@@ -205,119 +281,22 @@ async function initializeInterface() {
 
 
 /* =========================================================
-   RECURSOS
-========================================================= */
-
-async function initializeResources() {
-  console.log(
-    "[APP] Verificando recursos..."
-  );
-
-  const loaders = [];
-
-  /* FONTES */
-
-  if (
-    document.fonts &&
-    document.fonts.ready
-  ) {
-    console.log(
-      "[APP] Aguardando fontes..."
-    );
-
-    loaders.push(
-      document.fonts.ready.catch(
-        (error) => {
-          console.warn(
-            "[APP] Erro nas fontes:",
-            error
-          );
-
-          return null;
-        }
-      )
-    );
-  }
-
-  /* IMAGENS */
-
-  const images =
-    Array.from(document.images);
-
-  console.log(
-    "[APP] Imagens encontradas:",
-    images.length
-  );
-
-  images.forEach((image, index) => {
-    if (image.complete) {
-      console.log(
-        `[APP] Imagem ${index + 1}: já carregada`
-      );
-
-      return;
-    }
-
-    console.log(
-      `[APP] Aguardando imagem ${index + 1}:`,
-      image.src
-    );
-
-    loaders.push(
-      new Promise((resolve) => {
-
-        image.addEventListener(
-          "load",
-          () => {
-            console.log(
-              `[APP] Imagem ${index + 1}: carregada`
-            );
-
-            resolve();
-          },
-          { once: true }
-        );
-
-        image.addEventListener(
-          "error",
-          () => {
-            console.warn(
-              `[APP] Imagem ${index + 1}: ERRO`,
-              image.src
-            );
-
-            resolve();
-          },
-          { once: true }
-        );
-      })
-    );
-  });
-
-  if (loaders.length > 0) {
-    await Promise.all(loaders);
-  }
-
-  console.log(
-    "[APP] Recursos finalizados."
-  );
-}
-
-
-/* =========================================================
    PARTÍCULAS
-========================================================= */
+   ========================================================= */
 
 async function initializeParticles() {
+
   console.log(
     "[APP] Inicializando partículas..."
   );
 
   if (canvas) {
+
     ctx =
       canvas.getContext("2d");
 
     resizeCanvas();
+
     createParticles();
   }
 
@@ -331,9 +310,10 @@ async function initializeParticles() {
 
 /* =========================================================
    EVENTOS
-========================================================= */
+   ========================================================= */
 
 async function initializeEvents() {
+
   console.log(
     "[APP] Configurando eventos..."
   );
@@ -341,10 +321,15 @@ async function initializeEvents() {
   window.addEventListener(
     "resize",
     () => {
+
       resizeCanvas();
+
       createParticles();
+
     },
-    { passive: true }
+    {
+      passive: true
+    }
   );
 
   await flushFrame();
@@ -357,9 +342,10 @@ async function initializeEvents() {
 
 /* =========================================================
    LINKS
-========================================================= */
+   ========================================================= */
 
 async function initializeLinks() {
+
   console.log(
     "[APP] Verificando links..."
   );
@@ -374,22 +360,35 @@ async function initializeLinks() {
     buttons.length
   );
 
-  buttons.forEach((button) => {
+  buttons.forEach(
+    (button) => {
 
-    if (!button.hasAttribute("target")) {
-      button.setAttribute(
-        "target",
-        "_blank"
-      );
-    }
+      if (
+        !button.hasAttribute(
+          "target"
+        )
+      ) {
 
-    if (!button.hasAttribute("rel")) {
-      button.setAttribute(
-        "rel",
-        "noopener noreferrer"
-      );
+        button.setAttribute(
+          "target",
+          "_blank"
+        );
+      }
+
+      if (
+        !button.hasAttribute(
+          "rel"
+        )
+      ) {
+
+        button.setAttribute(
+          "rel",
+          "noopener noreferrer"
+        );
+      }
+
     }
-  });
+  );
 
   await flushFrame();
 
@@ -400,10 +399,144 @@ async function initializeLinks() {
 
 
 /* =========================================================
+   RECURSOS
+   ========================================================= */
+
+async function initializeResources() {
+
+  console.log(
+    "[APP] Verificando recursos..."
+  );
+
+  const loaders = [];
+
+
+  /* FONTES */
+
+  if (
+    document.fonts &&
+    document.fonts.ready
+  ) {
+
+    console.log(
+      "[APP] Aguardando fontes..."
+    );
+
+    loaders.push(
+      document.fonts.ready.catch(
+        (error) => {
+
+          console.warn(
+            "[APP] Erro nas fontes:",
+            error
+          );
+
+          return null;
+        }
+      )
+    );
+  }
+
+
+  /* IMAGENS */
+
+  const images =
+    Array.from(
+      document.images
+    );
+
+  console.log(
+    "[APP] Imagens encontradas:",
+    images.length
+  );
+
+
+  images.forEach(
+    (image, index) => {
+
+      if (image.complete) {
+
+        console.log(
+          `[APP] Imagem ${index + 1}: já carregada`
+        );
+
+        return;
+      }
+
+      console.log(
+        `[APP] Aguardando imagem ${index + 1}:`,
+        image.src
+      );
+
+
+      loaders.push(
+        new Promise(
+          (resolve) => {
+
+            image.addEventListener(
+              "load",
+              () => {
+
+                console.log(
+                  `[APP] Imagem ${index + 1}: carregada`
+                );
+
+                resolve();
+
+              },
+              {
+                once: true
+              }
+            );
+
+
+            image.addEventListener(
+              "error",
+              () => {
+
+                console.warn(
+                  `[APP] Imagem ${index + 1}: erro`,
+                  image.src
+                );
+
+                resolve();
+
+              },
+              {
+                once: true
+              }
+            );
+
+          }
+        )
+      );
+
+    }
+  );
+
+
+  if (
+    loaders.length > 0
+  ) {
+
+    await Promise.all(
+      loaders
+    );
+  }
+
+
+  console.log(
+    "[APP] Recursos finalizados."
+  );
+}
+
+
+/* =========================================================
    FINALIZAR LOADING
-========================================================= */
+   ========================================================= */
 
 function finishLoading() {
+
   console.log(
     "[APP] Finalizando loading..."
   );
@@ -413,6 +546,7 @@ function finishLoading() {
     "✓ SISTEMA PRONTO"
   );
 
+
   document.body.classList.remove(
     "loading"
   );
@@ -421,7 +555,9 @@ function finishLoading() {
     "loaded"
   );
 
+
   if (!preloader) {
+
     console.log(
       "[APP] Preloader não encontrado."
     );
@@ -429,15 +565,20 @@ function finishLoading() {
     return;
   }
 
+
   preloader.classList.add(
     "loading-complete"
   );
+
 
   preloader.addEventListener(
     "transitionend",
     () => {
 
-      if (preloader.parentNode) {
+      if (
+        preloader.parentNode
+      ) {
+
         preloader.remove();
 
         console.log(
@@ -446,14 +587,16 @@ function finishLoading() {
       }
 
     },
-    { once: true }
+    {
+      once: true
+    }
   );
 }
 
 
 /* =========================================================
    INICIALIZAÇÃO PRINCIPAL
-========================================================= */
+   ========================================================= */
 
 async function initializeApp() {
 
@@ -465,7 +608,10 @@ async function initializeApp() {
     "[APP] initializeApp() iniciado"
   );
 
+
   try {
+
+    /* 1 */
 
     updateLoading(
       0,
@@ -475,6 +621,8 @@ async function initializeApp() {
     await initializeDOM();
 
 
+    /* 2 */
+
     updateLoading(
       20,
       "[2/6] Carregando interface..."
@@ -482,6 +630,8 @@ async function initializeApp() {
 
     await initializeInterface();
 
+
+    /* 3 */
 
     updateLoading(
       40,
@@ -491,6 +641,8 @@ async function initializeApp() {
     await initializeParticles();
 
 
+    /* 4 */
+
     updateLoading(
       60,
       "[4/6] Configurando eventos..."
@@ -499,6 +651,8 @@ async function initializeApp() {
     await initializeEvents();
 
 
+    /* 5 */
+
     updateLoading(
       80,
       "[5/6] Configurando links..."
@@ -506,6 +660,8 @@ async function initializeApp() {
 
     await initializeLinks();
 
+
+    /* 6 */
 
     updateLoading(
       90,
@@ -517,7 +673,9 @@ async function initializeApp() {
 
     await flushFrame();
 
+
     finishLoading();
+
 
     console.log(
       "[APP] ✅ Inicialização concluída."
@@ -533,12 +691,17 @@ async function initializeApp() {
       "[APP] ❌ ERRO NA INICIALIZAÇÃO:"
     );
 
-    console.error(error);
+    console.error(
+      error
+    );
+
 
     if (loaderConsole) {
+
       loaderConsole.textContent =
         "⚠ ALGUNS RECURSOS NÃO FORAM CARREGADOS";
     }
+
 
     finishLoading();
   }
@@ -547,7 +710,7 @@ async function initializeApp() {
 
 /* =========================================================
    CONTADOR GLOBAL DE VISITAS
-========================================================= */
+   ========================================================= */
 
 async function carregarContadorVisitas() {
 
@@ -559,10 +722,12 @@ async function carregarContadorVisitas() {
     "[VISITAS] Iniciando contador..."
   );
 
+
   const contador =
     document.getElementById(
       "visitCount"
     );
+
 
   if (!contador) {
 
@@ -573,6 +738,7 @@ async function carregarContadorVisitas() {
     return;
   }
 
+
   contador.textContent =
     "CARREGANDO...";
 
@@ -582,6 +748,7 @@ async function carregarContadorVisitas() {
     console.log(
       "[VISITAS] Enviando POST para /api/visits..."
     );
+
 
     const inicio =
       performance.now();
@@ -615,6 +782,7 @@ async function carregarContadorVisitas() {
       `${tempo}ms`
     );
 
+
     console.log(
       "[VISITAS] HTTP:",
       response.status,
@@ -641,6 +809,7 @@ async function carregarContadorVisitas() {
 
 
     let data;
+
 
     try {
 
@@ -677,11 +846,15 @@ async function carregarContadorVisitas() {
 
 
     const numero =
-      Number(data.count);
+      Number(
+        data.count
+      );
 
 
     if (
-      !Number.isFinite(numero)
+      !Number.isFinite(
+        numero
+      )
     ) {
 
       throw new Error(
@@ -713,6 +886,7 @@ async function carregarContadorVisitas() {
       "========================================"
     );
 
+
   } catch (error) {
 
     console.error(
@@ -742,6 +916,7 @@ async function carregarContadorVisitas() {
       "========================================"
     );
 
+
     contador.textContent =
       "—";
   }
@@ -749,8 +924,8 @@ async function carregarContadorVisitas() {
 
 
 /* =========================================================
-   INICIALIZAÇÃO
-========================================================= */
+   INICIAR APLICAÇÃO
+   ========================================================= */
 
 function iniciarAplicacao() {
 
@@ -758,16 +933,24 @@ function iniciarAplicacao() {
     "[APP] Página iniciando..."
   );
 
+
   if (canvas) {
+
     ctx =
       canvas.getContext("2d");
 
     resizeCanvas();
+
     createParticles();
+
     requestAnimationFrame(
       drawParticles
     );
   }
+
+
+  /* IMPORTANTE:
+     Cada função é chamada somente UMA VEZ. */
 
   initializeApp();
 
@@ -777,7 +960,7 @@ function iniciarAplicacao() {
 
 /* =========================================================
    START
-========================================================= */
+   ========================================================= */
 
 if (
   document.readyState ===
@@ -787,152 +970,12 @@ if (
   document.addEventListener(
     "DOMContentLoaded",
     iniciarAplicacao,
-    { once: true }
+    {
+      once: true
+    }
   );
 
 } else {
 
   iniciarAplicacao();
-}// =========================================================
-// CONTADOR GLOBAL DE VISITAS
-// =========================================================
-
-async function carregarContadorVisitas() {
-  const contador = document.getElementById("visitCount");
-
-  if (!contador) {
-    console.warn(
-      "[VISITAS] Elemento #visitCount não encontrado."
-    );
-
-    return;
-  }
-
-  console.log("========================================");
-  console.log("[VISITAS] Iniciando contador...");
-
-  contador.textContent = "CARREGANDO...";
-
-  try {
-    console.log("[VISITAS] Enviando POST para /api/visits...");
-
-    const inicio = performance.now();
-
-    const response = await fetch("/api/visits", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      cache: "no-store"
-    });
-
-    const tempo = Math.round(
-      performance.now() - inicio
-    );
-
-    console.log(
-      "[VISITAS] Resposta recebida em:",
-      tempo + "ms"
-    );
-
-    console.log(
-      "[VISITAS] HTTP:",
-      response.status
-    );
-
-    const texto = await response.text();
-
-    console.log(
-      "[VISITAS] Resposta:",
-      texto
-    );
-
-    if (!response.ok) {
-      throw new Error(
-        `API retornou HTTP ${response.status}: ${texto}`
-      );
-    }
-
-    let data;
-
-    try {
-      data = JSON.parse(texto);
-    } catch {
-      throw new Error(
-        "A API não retornou JSON válido."
-      );
-    }
-
-    console.log(
-      "[VISITAS] Dados recebidos:",
-      data
-    );
-
-    if (
-      !data ||
-      data.success !== true ||
-      typeof data.count !== "number"
-    ) {
-      throw new Error(
-        "Resposta inválida da API."
-      );
-    }
-
-    const numero = data.count.toLocaleString(
-      "pt-BR"
-    );
-
-    contador.textContent = numero;
-
-    console.log(
-      "[VISITAS] ✅ Contador atualizado:",
-      numero
-    );
-
-    console.log("========================================");
-
-  } catch (error) {
-
-    console.error(
-      "[VISITAS] ❌ ERRO!"
-    );
-
-    console.error(
-      "[VISITAS] Nome:",
-      error?.name
-    );
-
-    console.error(
-      "[VISITAS] Mensagem:",
-      error?.message
-    );
-
-    console.error(
-      "[VISITAS] Erro completo:",
-      error
-    );
-
-    contador.textContent = "—";
-
-    console.log("========================================");
-  }
-}
-
-
-// =========================================================
-// INICIAR CONTADOR
-// =========================================================
-
-if (document.readyState === "loading") {
-
-  document.addEventListener(
-    "DOMContentLoaded",
-    carregarContadorVisitas,
-    { once: true }
-  );
-
-} else {
-
-  carregarContadorVisitas();
-
 }
