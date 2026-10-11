@@ -68,12 +68,7 @@ function createParticles() {
       alpha:
         0.15 + Math.random() * 0.22,
 
-      color:
-        colors[
-          Math.floor(
-            Math.random() * colors.length
-          )
-        ],
+      color: getComputedStyle(document.documentElement).getPropertyValue("--theme-particle").trim() || "#b75bff",
 
       pulse:
         Math.random() *
@@ -144,7 +139,7 @@ function drawParticles() {
     ctx.beginPath();
 
     ctx.fillStyle =
-      particle.color;
+      getComputedStyle(document.documentElement).getPropertyValue("--theme-particle").trim() || particle.color;
 
     ctx.globalAlpha =
       particle.alpha;

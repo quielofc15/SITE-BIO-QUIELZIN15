@@ -604,3 +604,15 @@ body.loading .page-shell {
 .social-links .link-button { padding: 10px 14px; min-height: 42px; font-size: 0.85rem; }
 .social-links .button-icon { font-size: 1rem; }
 @media (max-width: 600px) { .shop-button { width: 100%; max-width: 420px; } }
+
+/* Cores editáveis pelo painel */
+:root { --theme-bg:#07030f; --theme-panel:#1a0b30; --theme-border:#6e32ad; --theme-button:#110723; --theme-button-border:#6e32ad; --theme-particle:#b75bff; --theme-orb:#b75bff; --theme-title:#ffffff; }
+html,body { background:radial-gradient(ellipse at 50% 0%,var(--theme-panel),transparent 55%),var(--theme-bg); }
+body::before { background:radial-gradient(circle at 12% 20%,color-mix(in srgb,var(--theme-orb) 22%,transparent),transparent 22%),radial-gradient(circle at 90% 75%,color-mix(in srgb,var(--theme-orb) 12%,transparent),transparent 20%); }
+.hero-card,.footer-card { background:linear-gradient(180deg,var(--theme-panel),var(--theme-bg)); border-color:var(--theme-border); }
+.hero-card::before,.footer-card::before { background:linear-gradient(135deg,color-mix(in srgb,var(--theme-orb) 17%,transparent),transparent 45%); }
+.hero-title { color:var(--theme-title); }
+.neon-text {text-shadow:0 0 12px color-mix(in srgb,var(--theme-title) 60%,transparent),0 0 28px var(--theme-orb);}
+.link-button {background:var(--theme-button);border-color:var(--theme-button-border);}
+.link-button:hover {border-color:var(--theme-border);box-shadow:0 15px 50px color-mix(in srgb,var(--theme-orb) 25%,transparent);}
+.image-wrap {border-color:var(--theme-border);}

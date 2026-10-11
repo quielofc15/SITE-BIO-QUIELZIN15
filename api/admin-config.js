@@ -1,0 +1,1 @@
+module.exports=(req,res)=>{if(req.method!=="GET")return res.status(405).end();const url=process.env.SUPABASE_URL,anonKey=process.env.SUPABASE_ANON_KEY;if(!url||!anonKey)return res.status(503).json({error:"Configuração ausente"});res.setHeader("Cache-Control","no-store");return res.json({url:url.replace(/\/$/,""),anonKey});};
